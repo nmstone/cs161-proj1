@@ -60,15 +60,15 @@ static int encrypt_mode(const char *key_filename, const char *message)
 {
 	/* IMPLEMENT: Error checks for every function that returns 0 or 1 based on
 	              success or failure. */
-	struct rsa_key key;
+	struct rsa_key key; // Init key struct which we will later load in from file arg
 	rsa_key_init(&key);
-	rsa_key_load_public(key_filename, &key);
+	rsa_key_load_public(key_filename, &key); //Loads the public key from our file into key struct 
     mpz_t c;
-	encode(c, message);
+	encode(c, message); // Encodes message from string to mpz_t.
 	mpz_t m;
-	rsa_encrypt(m, c, &key);
+	rsa_encrypt(m, c, &key); // Does actual encryption.
 	gmp_printf("%Zd\n", m);
-	rsa_key_clear(&key);
+	rsa_key_clear(&key); // Frees key struct.
 	return 0;
 }
 
@@ -83,7 +83,7 @@ static int decrypt_mode(const char *key_filename, const char *c_str)
 	              success or failure. */
 	struct rsa_key key;
 	rsa_key_init(&key);
-	rsa_key_load_public(key_filename, &key);
+	rsa_key_load_private(key_filename, &key); //load private key from file into key struct
     mpz_t c; // integer version of ciphertext
 	mpz_t m; // eventual "return" from decode
 
