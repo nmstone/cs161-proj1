@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <gmp.h>
 
 #include "rsa.h"
 
@@ -57,9 +58,18 @@ static char *decode(const mpz_t x, size_t *len)
  * was an error; zero otherwise. */
 static int encrypt_mode(const char *key_filename, const char *message)
 {
-	/* TODO */
-	fprintf(stderr, "encrypt not yet implemented\n");
-	return 1;
+	/* IMPLEMENT: Error checks for every function that returns 0 or 1 based on
+	              success or failure. */
+	struct rsa_key key;
+	rsa_key_init(&key);
+	rsa_key_load_public(key_filename, &key);
+    mpz_t c;
+	encode(c, message);
+	mpz_t m;
+	rsa_encrypt(m, c, &key);
+	gmp_printf("%Zd\n", m);
+	rsa_key_clear(&key);
+	return 0;
 }
 
 /* The "decrypt" subcommand. c_str should be the string representation of an
@@ -69,9 +79,24 @@ static int encrypt_mode(const char *key_filename, const char *message)
  * was an error; zero otherwise. */
 static int decrypt_mode(const char *key_filename, const char *c_str)
 {
-	/* TODO */
-	fprintf(stderr, "decrypt not yet implemented\n");
-	return 1;
+	/* IMPLEMENT: Error checks for every function that returns 0 or 1 based on
+	              success or failure. */
+	struct rsa_key key;
+	rsa_key_init(&key);
+	rsa_key_load_public(key_filename, &key);
+    mpz_t c; // integer version of ciphertext
+	mpz_t m; // eventual "return" from decode
+
+	mpz_set_str(c, c_str, 10);
+	rsa_decrypt(m, c, &key);
+
+	size_t length;
+	char *ret_str = decode(m, &length);
+	printf("%s\n", ret_str);
+	rsa_key_clear(&key);
+
+	/* DON'T forget to free ret_str at some point.*/
+	return 0;
 }
 
 /* The "genkey" subcommand. numbits_str should be the string representation of
@@ -136,3 +161,4 @@ int main(int argc, char *argv[])
 	usage(stderr);
 	return 1;
 }
+
